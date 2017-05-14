@@ -1,7 +1,5 @@
 #  cd /c/Users/bpars/"fullstack-nanodegree-vm"/vagrant
 
-okay.... succcess
-
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import cgi
 from sqlalchemy import create_engine
@@ -27,7 +25,7 @@ class webServerHandler(BaseHTTPRequestHandler):
                 for ele in restaurant_list:
                     result = "<div>"
                     result += "<h2>{0}</h2> \n".format(ele.name)
-                    result += "<h4><a href='/restaurant'>Edit</a></h4><h4><a href='/restaurant'>Delete</a></h4>"
+                    result += "<h4><a href='/restaurant/{0}/edit'>Edit</a></h4><h4><a href='/delete'>Delete</a></h4>".format(ele.id)
                     result += "</div>"
                     output += result
                 output += "<h3><a href='/add'>Add Restaurant</a></h3>"
@@ -52,6 +50,22 @@ class webServerHandler(BaseHTTPRequestHandler):
                 print output
                 return
 
+            if self.path.endswith("/edit"):
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                output = ""
+                output += "<html><body>"
+                output += "<h1>Edit Restaurant Name</h1>"
+                output += '''<form method='POST' enctype='multipart/form-data'
+                action='/restaurant'><h2>What is the name you would like to change to?</h2><input
+                name="message" type="text" ><input type="Submit"
+                value="Edit"> </form>'''
+                output += "</body></html>"
+                self.wfile.write(output)
+                print output
+                return
+
         except IOError:
             self.send_error(404, 'File Not Found: %s' % self.path)
 
@@ -68,8 +82,8 @@ class webServerHandler(BaseHTTPRequestHandler):
                 messagecontent = fields.get('message')
                 print "Made it to if statement"
             print messagecontent
-            name = (messagecontent)
-            name = name[2:-2]
+            name = str(messagecontent)[2:-2]
+#            name = name[2:-2]
             print name
             add = Restaurant(name = "{0}".format(name))
             session.add(add)
